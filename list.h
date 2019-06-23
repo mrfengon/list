@@ -13,7 +13,7 @@ typedef struct list {
 } list;
 
 void list_init(list** root, char info);
-void list_push_elem(list** root);
+void list_push_element(list** root, char info);
 void list_pop_element(list **root);
 size_t list_size(list *root);
 void list_print(list *root);

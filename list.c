@@ -5,69 +5,67 @@
 void list_init(list **root, char info){
     *root = (list *)(malloc(sizeof(list)));
     (*root)->info = info;
-    (*root)->is_barrier = 0;
-    list* bar;
-    bar = (list *)(malloc(sizeof(list)));
+    (*root)->is_barrier = false;
+
+    list* bar = (list *)(malloc(sizeof(list)));
     bar->prev = *root;
     bar->next = *root;
-    bar->is_barrier = 1;
+    bar->is_barrier = true;
     (*root)->next = bar;
     (*root)->prev = bar;
 }
 
 void list_push_element(list** root, char info) {
-    list* pushed_elem;
-    list* temp = *root;
-    pushed_elem = (list*) (malloc(sizeof(list)));
-    temp = temp->prev->prev;
-    pushed_elem->next = temp->next;
-    temp->next = pushed_elem;
-    pushed_elem->prev = temp;
-    pushed_elem->info = info;
+    list *pushed_elem = (list *)(malloc(sizeof(list)));
+    list* last_elem = (*root)->prev->prev;
+    
+    pushed_elem->next = last_elem->next;
+    last_elem->next = pushed_elem;
+    pushed_elem->prev = last_elem;
     pushed_elem->next->prev = pushed_elem;
-    pushed_elem->is_barrier = 0;
+    
+    pushed_elem->info = info;
+    pushed_elem->is_barrier = false;
 }
 
 void list_pop_element(list** root) {
-    list* popped_elem = *root;
-    list* temp;
-    popped_elem = popped_elem->prev->prev;
-    temp = popped_elem->prev;
-    temp->next = popped_elem->next;
+    list *popped_elem = (*root)->prev->prev;
+    list* new_last_elem = popped_elem->prev;
+    new_last_elem->next = popped_elem->next;
+    new_last_elem->next->prev = new_last_elem;
+
     free(popped_elem);
 }
 
 size_t list_size(list* root) {
     size_t size = 0;
-    list* temp = root;
-    while(temp->next != root) {
+    list* iter = root;
+    while((iter != NULL) && !(iter->is_barrier)) {
         size++;
-        temp = temp->next;
+        iter = iter->next;
     }
     return size;
 }
 
 void list_print(list* root) {
-    list* printing_elem = root;
-    while(printing_elem->next->next != root) {
-        printf("%s ", printing_elem->info);
-        printing_elem = printing_elem->next;
+    list* printed_elem = root;
+    while ((printed_elem != NULL) && !(printed_elem->is_barrier))
+    {
+        printf("%c ", printed_elem->info);
+        printed_elem = printed_elem->next;
     }
+    printf("\n");
 }
 
 bool is_list_ordered(list* root) {
-    list* temp = root;
+    list* iter = root;
     char info;
     bool is_ordered;
-    while(temp->next->next != root) {
-        info = temp->info;
-        temp = temp->next;
-        if(temp->info <= info) {
-            is_ordered = 1;
-        } else {
-            is_ordered = 0;
-            return is_ordered;
+    while(iter != NULL && !(iter->next->is_barrier)) {
+        if(iter->info > iter->next->info) {
+            return false;
         }
+        iter = iter->next;
     }
-    return is_ordered;
+    return true;
 }
